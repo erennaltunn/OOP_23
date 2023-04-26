@@ -1,11 +1,13 @@
 ﻿#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "Mario.h"
+
 using namespace std;
 
 const float GRAVITY = 1000.0f;
-const float JUMP_VELOCITY = -500.0f;
-const float MOVE_SPEED = 300.0f;
+const float JUMP_VELOCITY = 1000.0f;
+const float MOVE_SPEED = 1.0f;
 
 
 int main()
@@ -18,31 +20,19 @@ int main()
         cout << "File could not be found!" << endl;
     }
 
-    sf::Texture mario_texture;
-    if (!mario_texture.loadFromFile("../assets/mario2.png"))
-    {
-        cout << "File could not be found!" << endl;
-    }
-
     sf::Sprite floor_sprite;
     floor_sprite.setTexture(floor_texture);
 
     sf::Sprite floor2(floor_texture);
 
 
-    sf::Sprite mario_sprite;
-    mario_sprite.setTexture(mario_texture);
-
-    // set initial positions of mario and floor
-    floor_sprite.setPosition(0, 488);
-    mario_sprite.setPosition(100, 338);
-
-    // set initial velocity of mario
-    sf::Vector2f velocity(0.0f, 0.0f);
+    Mario mario(&window);
 
     // create a clock to measure elapsed time
     sf::Clock clock;
 
+    // set initial positions of mario and floor
+    floor_sprite.setPosition(0, 488);
 
 
     // run the program as long as the window is open
@@ -63,25 +53,27 @@ int main()
 
                 if (event.key.code == sf::Keyboard::Left)
                 {
-                    velocity.x = -MOVE_SPEED;
+                    mario.vx = -MOVE_SPEED;
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    velocity.x = MOVE_SPEED;
+                    mario.vx = MOVE_SPEED;
                 }
                 else if (event.key.code == sf::Keyboard::Space)
                 {
                     // make mario jump
-                    if (mario_sprite.getPosition().y == 450)
+                    if (mario.getPosition().y == 450)
                     {
-                        velocity.y = JUMP_VELOCITY;
+                        mario.vy = JUMP_VELOCITY;
+
                     }
+                    
                 }
                 break;
             case sf::Event::KeyReleased:
                 if (event.key.code == sf::Keyboard::Left || event.key.code == sf::Keyboard::Right)
                 {
-                    velocity.x = 0.0f;
+                    mario.vx = 0.0f;
                 }
                 break;
 
@@ -93,29 +85,41 @@ int main()
         float deltaTime = clock.restart().asSeconds();
 
         // apply gravity to mario's velocity
-        velocity.y += GRAVITY * deltaTime;
+        mario.vy += GRAVITY * deltaTime;
 
 
         // move mario based on velocity
-        mario_sprite.move(velocity * deltaTime);
+        mario.move();
+
 
         // check if mario hits the floor
-        if (mario_sprite.getPosition().y >= 450)
+        if (mario.getPosition().y < 450)
         {
-            mario_sprite.setPosition(mario_sprite.getPosition().x, 450);
-            velocity.y = 0.0f;
+            mario.setPosition(sf::Vector2f(mario.getPosition().x, mario.vy));
         }
+
+        if (mario.getPosition().y > 450)
+        {
+            mario.setPosition(sf::Vector2f(mario.getPosition().x, 0));
+        }
+        
 
         window.clear();
 
         window.draw(floor_sprite);
 
-        window.draw(mario_sprite);
+        mario.draw(window);
 
         window.display();
+        printf("%f, %f \n", mario.getPosition().x, mario.getPosition().y);
 
         sf::sleep(sf::milliseconds(1));
+
     }
 
+
+    
+
     return 0;
+
 }
