@@ -34,7 +34,7 @@ class Object
         // Abstract methods to be overridden in derived classes
         virtual void move() = 0;
         virtual void fall() = 0;
-        virtual void jump(bool down) = 0;
+        //virtual void jump() = 0;
 
         
 
