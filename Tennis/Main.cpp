@@ -6,7 +6,7 @@
 using namespace std;
 
 const float GRAVITY = 1000.0f;
-const float JUMP_VELOCITY = 1000.0f;
+const float JUMP_VELOCITY = 1.0f;
 const float MOVE_SPEED = 1.0f;
 
 
@@ -61,13 +61,10 @@ int main()
                 }
                 else if (event.key.code == sf::Keyboard::Space)
                 {
-                    // make mario jump
-                    if (mario.getPosition().y == 450)
-                    {
-                        mario.vy = JUMP_VELOCITY;
-
-                    }
                     
+                    mario.jump(false);
+
+                      
                 }
                 break;
             case sf::Event::KeyReleased:
@@ -84,25 +81,26 @@ int main()
         // update game logic
         float deltaTime = clock.restart().asSeconds();
 
-        // apply gravity to mario's velocity
-        mario.vy += GRAVITY * deltaTime;
+        
 
 
         // move mario based on velocity
         mario.move();
 
+        mario.update(deltaTime);
 
-        // check if mario hits the floor
-        if (mario.getPosition().y < 450)
-        {
-            mario.setPosition(sf::Vector2f(mario.getPosition().x, mario.vy));
-        }
 
-        if (mario.getPosition().y > 450)
-        {
-            mario.setPosition(sf::Vector2f(mario.getPosition().x, 0));
-        }
-        
+        //// check if mario hits the floor
+        //if (mario.getPosition().y < 450)
+        //{
+        //    // apply gravity to mario's velocity
+        //    mario.vy += GRAVITY * deltaTime;
+        //    mario.setPosition(sf::Vector2f(mario.getPosition().x, mario.vy));
+        //}
+
+
+        //mario.setPosition(sf::Vector2f(mario.getPosition().x, mario.vy- GRAVITY * 10*deltaTime));
+
 
         window.clear();
 
