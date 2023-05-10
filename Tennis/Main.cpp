@@ -3,21 +3,35 @@
 #include <iostream>
 #include "Game.h"
 #include <chrono>
-constexpr std::chrono::microseconds FRAME_DURATION(16667);
 using namespace std;
 
-const float GRAVITY = 0.981f;
-const float JUMP_VELOCITY = -20.0f;
-const float MOVE_SPEED = 10.0f;
+
+#define SCREEN_HEIGHT 1024
+#define SCREEN_WIDTH 768
 
 
 int main()
 {
+
+    sf::Texture textures[8];
     sf::Texture floor_texture;
-    sf::Sprite floor_sprite;
-    Game game(floor_texture);
-    sf::RenderWindow window(sf::VideoMode(1024, 768), "Tennis Ball");
-    game.run(&window);
+    sf::Texture brick_texture;
+    sf::Texture pipe_texture;
+
+
+    Mario mario;
+
+    textures[0] = floor_texture;
+    textures[1] = brick_texture;
+    textures[2] = pipe_texture;
+
+
+    //sf::Texture floor_texture;
+    //sf::Texture brick_texture;
+
+
+    Game game(textures);
+    game.run();
 
     
     /*
