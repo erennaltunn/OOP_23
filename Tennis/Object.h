@@ -32,5 +32,11 @@ class Object
         void MovingDirectiongLeft() { velocity.x = -Velocity; }
 	    void MovingDirectiongRight() { velocity.x = Velocity; }
 
+        virtual sf::Sprite& getSprite()
+        {
+            return sprite;
+        };
+
+
 
 };

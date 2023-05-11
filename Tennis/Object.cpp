@@ -4,6 +4,7 @@ bool Object::setStartPosition(Object *obj){
     obj->textures[0].loadFromFile("../assets/mario1.png");
     obj->sprite.setTexture(textures[0]);
     obj->sprite.setPosition(10, 600);
+	
 	return true;
 };
 
