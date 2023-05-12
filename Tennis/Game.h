@@ -174,11 +174,8 @@ public:
 
 				this->move();
 
-
 				mario.isOnFloor = 0;
 				//turtle.isOnFloor = 0;
-
-				
 				
 				for(int k(0); k < bricks.size(); k++)
 				{
@@ -219,6 +216,8 @@ public:
 							// Mario is colliding with the bottom of the brick
 							mario.vy = 0.0f;
 							mario.moveBottom({0, GRAVITY + 10});
+							//check turtle brick collision.
+							//bricks[k].setPosition(bricks[k].getPosition().x, bricks[k].getPosition().y - 30);
 							//std::cout << mario.getPos().x << "  " << mario.getPos().y << std::endl;
 						}
 					}
@@ -229,60 +228,118 @@ public:
 				for (int i = 0; i < 5; i++)
 				{
 					sf::Vector2f turtle_pos = turtles[i].getPosition();
+					turtles[i].setAnimation(current_frame);
 
 					turtles[i].isOnFloor = 0;
+					
 
-					for (int j(0); j < bricks.size(); j++) {
-						if (checkCollusion_for_Turtle(&turtles[i], bricks.at(j))) {
-							turtles[i].isOnFloor = 1;
+
+					if (checkCollusion_for_Mario_Turtle(&turtles[i], &mario) && !mario.isDead) {
+
+						sf::FloatRect marioBounds = mario.getSprite().getGlobalBounds();
+						sf::FloatRect turtleBounds = turtles[i].getSprite().getGlobalBounds();
+
+						float overlapLeft = marioBounds.left + marioBounds.width - turtleBounds.left;
+						float overlapRight = turtleBounds.left + turtleBounds.width - marioBounds.left;
+						float overlapTop = marioBounds.top + marioBounds.height - turtleBounds.top;
+						float overlapBottom = turtleBounds.top + turtleBounds.height - marioBounds.top;
+
+						if (overlapTop <= 10 && mario.vy > 0 && !mario.isDead)
+						{
+							// Mario is colliding with the top of the turtle
+							turtles[i].isDead = 1;
+							turtles[i].setAnimation(current_frame);
 						}
+						else 
+						{
+							mario.isDead = 1;
+							mario.setAnimation(current_frame, -1);
+							mario.killMario();
+
+						}
+
 					}
-					//continue
-					if (turtles[i].isOnFloor) {
-						turtles[i].move({ turtles[i].vx, 0 });
+					if (mario.isDead && mario.getSprite().getPosition().y > WINDOW_HEIGHT - 50 && mario.getLife() !=0)
+					{
+						std::cout << mario.getLife() << std::endl;
+
+						mario.getSprite().setPosition(200, 550);
+						mario.isDead = 0;
+						mario.setAnimation(current_frame, 0);
+
 					}
-					//if left top
-					else if (turtle_pos.x < 200 && turtle_pos.y < 200) {
-						turtles[i].vx = turtles[i].vx + 0.03;
-						turtles[i].move({ turtles[i].vx, 0 });
+
+					if (turtles[i].isDead == 1)
+					{
+						turtles[i].vy = turtles[i].vy + 0.05;
+						turtles[i].getSprite().move({ 0, turtles[i].vy});
 					}
-					//right top
-					else if (turtle_pos.x >= 800 && turtle_pos.y < 200) {
-						turtles[i].getSprite().setTextureRect(sf::IntRect(68, 0, -68, 66));
-						turtles[i].vx = turtles[i].vx - 0.03;
-						turtles[i].move({ turtles[i].vx, 0 });
-					}
-					//floor level
-					else if (turtles[i].getPosition().y >= FLOOR_LEVEL - 66) {
-						turtles[i].move({ turtles[i].vx, 0 });
-					}
-					//no collision
 					else {
-						turtles[i].vy = std::min(GRAVITY + turtles[i].vy, 8.0f);
-						turtles[i].move({ turtles[i].vx, turtles[i].vy });
-					}
+						for (int j(0); j < bricks.size(); j++) {
+							if (checkCollusion_for_Turtle(&turtles[i], bricks.at(j))) {
 
-					//edges
-					if (turtles[i].getPosition().x >= WINDOW_WIDTH - 68) {
-						turtles[i].getSprite().setTextureRect(sf::IntRect(68, 0, -68, 66));
-						turtles[i].vx = -turtles[i].vx;
-						if (turtles[i].getPosition().y > 650) {
-							turtles[i].getSprite().setTextureRect(sf::IntRect(0, 0, 68, 66));
-							turtles[i].vx = -turtles[i].vx;
-							turtles[i].setPosition({ 100,50 });
+								sf::FloatRect turtleBounds = turtles[i].getSprite().getGlobalBounds();
+								sf::FloatRect brickBounds = bricks.at(j).getGlobalBounds();
+
+								float overlapTop = turtleBounds.top + turtleBounds.height - brickBounds.top;
+
+								if (overlapTop <= 10)
+								{
+									// Mario is colliding with the top of the brick
+									turtles[i].isOnFloor = 1;
+									//turtles[i].setAnimation(current_frame);
+								}
+
+								
+							}
 						}
-						
-					}
-					else if (turtles[i].getPosition().x <= 0) {
-						turtles[i].getSprite().setTextureRect(sf::IntRect(0, 0, 68, 66));
-						turtles[i].vx = -turtles[i].vx;
-						if (turtles[i].getPosition().y > 650) {
+						//continue
+						if (turtles[i].isOnFloor) {
+							turtles[i].move({ turtles[i].vx, 0 });
+						}
+						//if left top
+						else if (turtle_pos.x < 200 && turtle_pos.y < 200) {
+							turtles[i].vx = turtles[i].vx + (i+1)*0.01;
+							turtles[i].move({ turtles[i].vx, 0 });
+						}
+						//right top
+						else if (turtle_pos.x >= 800 && turtle_pos.y < 200) {
+							turtles[i].getSprite().setTextureRect(sf::IntRect(68, 0, -68, 66));
+							turtles[i].vx = turtles[i].vx - 0.01;
+							turtles[i].move({ turtles[i].vx, 0 });
+						}
+						//floor level
+						else if (turtles[i].getPosition().y >= FLOOR_LEVEL - 66) {
+							turtles[i].move({ turtles[i].vx, 0 });
+						}
+						//no collision
+						else {
+							turtles[i].vy = std::min(GRAVITY + turtles[i].vy, 8.0f);
+							turtles[i].move({ turtles[i].vx, turtles[i].vy });
+						}
+
+						//edges
+						if (turtles[i].getPosition().x >= WINDOW_WIDTH - 68) {
 							turtles[i].getSprite().setTextureRect(sf::IntRect(68, 0, -68, 66));
 							turtles[i].vx = -turtles[i].vx;
-							turtles[i].setPosition({ 900,50 });
-						}
-					}
+							if (turtles[i].getPosition().y > 650) {
+								turtles[i].getSprite().setTextureRect(sf::IntRect(0, 0, 68, 66));
+								turtles[i].vx = -turtles[i].vx;
+								turtles[i].setPosition({ 100,50 });
+							}
 
+						}
+						else if (turtles[i].getPosition().x <= 0) {
+							turtles[i].getSprite().setTextureRect(sf::IntRect(0, 0, 68, 66));
+							turtles[i].vx = -turtles[i].vx;
+							if (turtles[i].getPosition().y > 650) {
+								turtles[i].getSprite().setTextureRect(sf::IntRect(68, 0, -68, 66));
+								turtles[i].vx = -turtles[i].vx;
+								turtles[i].setPosition({ 900,50 });
+							}
+						}
+
+					}
 
 
 				}
@@ -294,7 +351,7 @@ public:
 				mario.getSprite().move(mario.vx, mario.vy);
 
 
-				if(mario.getPos().y >= FLOOR_LEVEL-80)
+				if(mario.getPos().y >= FLOOR_LEVEL-80 && mario.isDead == 0)
 				{
 					mario.getSprite().setPosition(mario.getPos().x, FLOOR_LEVEL - 80);
 					mario.isOnFloor = 1;
@@ -327,57 +384,63 @@ public:
 		while (window->pollEvent(this->event))
 		{
 			{
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 0) {
-					mario.setAnimation(current_frame, 0);
+				if (mario.isDead == 0)
+				{
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 0) {
+						mario.setAnimation(current_frame, 0);
 						mario.vx = 0;
 
 
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 0)
-				{
-					//std::cout << mario.vx << std::endl;
-					
-					mario.getSprite().setTextureRect(sf::IntRect(66, 0 , -66, 88));
-					mario.setAnimation(current_frame, 1);
-					mario.vx = std::min(mario.vx + MARIO_ACCELERATION, MARIO_WALK_SPEED);
+					}
+					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 0)
+					{
+						//std::cout << mario.vx << std::endl;
+						if (mario.vx < 0)
+						{
+							mario.setAnimation(current_frame, 2);
+						}
+						else
+						{
+							mario.setAnimation(current_frame, 1);
+						}
 
-					mario.moveRight({ mario.vx, 0 });
+						mario.getSprite().setTextureRect(sf::IntRect(66, 0, -66, 88));
 
-					
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 0)
-				{
+						mario.vx = std::min(mario.vx + MARIO_ACCELERATION, MARIO_WALK_SPEED);
 
-					//std::cout << mario.vx << std::endl;
-					mario.setAnimation(current_frame, 1);
-					mario.getSprite().setTextureRect(sf::IntRect(0, 0, 66, 88));
-					mario.vx = std::max(mario.vx - MARIO_ACCELERATION, -MARIO_WALK_SPEED);
-
-					
-					mario.moveLeft({ mario.vx, 0 });
-					
-				}
-
-				/*else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 0) {
-					mario.setAnimation(current_frame, 0);
-					mario.vx = 0;
-					std::cout << "asdasd" << std::endl;
-					
-				}*/
+						mario.moveRight({ mario.vx, 0 });
 
 
+					}
+					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) == 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) == 0)
+					{
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && mario.isOnFloor)
-				{
-					mario.moveTop({0, -10 + VELOCITY*0.4});
-					mario.vy = -10;
-					//std::cout << mario.vy << std::endl;
-				}
+						if (mario.vx > 0)
+						{
+							mario.setAnimation(current_frame, 2);
+						}
+						else
+						{
+							mario.setAnimation(current_frame, 1);
+						}
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-				{
-					
+						//std::cout << mario.vx << std::endl;
+
+						mario.getSprite().setTextureRect(sf::IntRect(0, 0, 66, 88));
+						mario.vx = std::max(mario.vx - MARIO_ACCELERATION, -MARIO_WALK_SPEED);
+
+
+						mario.moveLeft({ mario.vx, 0 });
+
+					}
+
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && mario.isOnFloor)
+					{
+						mario.moveTop({ 0, -10 + VELOCITY * 0.4 });
+						mario.vy = -10;
+						//std::cout << mario.vy << std::endl;
+					}
+
 				}
 
 			}
@@ -416,17 +479,6 @@ public:
 
 	}
 
-	//bool onFloor(Object* obj) {
-	//	if (obj->vy == 8.0) {
-	//		obj->isOnFloor = 1;
-	//		return 1;
-	//	}
-	//	else {
-	//		obj->isOnFloor = 0;
-	//		return 0;
-	//	}
-	//}
-
 	bool checkCollusion_for_Turtle(Turtle *t, sf::Sprite brick)
 	{
 		if (t->getSprite().getGlobalBounds().intersects(brick.getGlobalBounds()))
@@ -434,6 +486,18 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+	bool checkCollusion_for_Mario_Turtle(Turtle* t, Mario* m)
+	{
+		if (t->getSprite().getGlobalBounds().intersects(m->getSprite().getGlobalBounds()))
+		{
+			return true;
+		}
+
+		return false;
+
+		
 	}
 
 	bool checkCollusion(Object *o, sf::Sprite brick)
@@ -448,15 +512,15 @@ public:
 
 	bool check_Collusion_for_Bricks(Mario *m, sf::Sprite brick)
 	{
-		if(m->getSprite().getGlobalBounds().intersects(brick.getGlobalBounds()))
+
+		if (m->getSprite().getGlobalBounds().intersects(brick.getGlobalBounds()) && m->isDead == 0)
 		{
 			return true;
 		}
-		return false;
-	}
 
-	void update()
-	{
+			
+		return false;
+		
 		
 	}
 

@@ -20,7 +20,8 @@ class Mario : public Object
         float flPreviousTime = 0;
         float flCurrentTime = 0;
         float dt;  
-        bool keyRel = false;   
+        bool keyRel = false;  
+        int life = 3;
 
     public:
 
@@ -31,6 +32,8 @@ class Mario : public Object
             this->texture[2].loadFromFile("../assets/mario3.png");
             this->texture[3].loadFromFile("../assets/mario4.png");
             this->texture[4].loadFromFile("../assets/mario6.png");
+            this->texture[5].loadFromFile("../assets/mario5.png");
+            this->texture[6].loadFromFile("../assets/mario7.png");
 
 
             this->sprite.setTexture(this->texture[0]);
@@ -40,6 +43,8 @@ class Mario : public Object
         void jump(bool down);
         void fall(void);
         int flip = 0;
+        bool isDead = 0;
+
         void draw(sf::RenderWindow *window)
         {
             window->draw(sprite);
@@ -59,6 +64,8 @@ class Mario : public Object
 
             this->sprite.move({vel});
         }
+
+
         void moveBottom(sf::Vector2f vel)
         {
             this->sprite.move({vel});
@@ -74,16 +81,43 @@ class Mario : public Object
             return sprite.getPosition();
         }
 
-        void setAnimation(int frame_count, int moving) {
-            if (moving == 0) {
+        int killMario()
+        {
+            life--;
+
+            if (life <= 0)
+            {
+               life = 0;
+            }
+
+            return life;
+        }
+
+        int getLife()
+        {
+            return life;
+        }
+
+
+
+        void setAnimation(int frame_count, int mode) {
+            if (mode == 0) {
                 this->sprite.setTexture(this->texture[0]);
  
             }
-            else if (moving == 1)
+            else if (mode == 1)
             {
                 this->sprite.setTexture(this->texture[frame_count + 1]);
             }
 
+            else if (mode == 2)
+            {
+                this->sprite.setTexture(this->texture[5]);
+            }
+            else if(mode == -1)
+            {
+                this->sprite.setTexture(this->texture[6]);
+            }
 
         }
 };
