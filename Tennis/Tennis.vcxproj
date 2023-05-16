@@ -141,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Mario.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Scoreboard.cpp" />
@@ -149,7 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Map.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Mario.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Scoreboard.h" />
